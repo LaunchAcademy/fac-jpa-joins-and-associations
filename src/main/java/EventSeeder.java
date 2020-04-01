@@ -13,48 +13,21 @@ public class EventSeeder {
   public static void main(String[] args) {
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.launchacademy.meetups");
     EntityManager em = emf.createEntityManager();
+/*
+create transactions to create categories in the Category table using CATEGORY_NAMES
+write code to prevent duplication
+*/
 
-    em.getTransaction().begin();
-    for(String categoryName : CATEGORY_NAMES) {
-      String queryString = "SELECT c FROM Category c WHERE name = :name";
-      Query query = em.createQuery(queryString);
-      query.setParameter("name", categoryName);
-      query.setMaxResults(1);
-      List<Category> categories = query.getResultList();
-
-      if(categories.size() == 0) {
-        Category category = new Category();
-        category.setName(categoryName);
-        em.persist(category);
-      }
-    }
-    em.getTransaction().commit();
-
+/*
+create a query to retrieve a category
+use that query to create a Category variable to be used when creating an Event
+create a transation to create an event.
+ensure that transaction sets the category by leveraging associations
+*/
     em.getTransaction().begin();
 
     //retrieve the networking category
-    String networkingQ = "SELECT c FROM Category c WHERE name = :name";
-    Query networkingQuery = em.createQuery(networkingQ);
-    networkingQuery.setParameter("name", "Networking");
-    networkingQuery.setMaxResults(1);
-    Category networkingCategory = (Category)networkingQuery.getResultList().get(0);
 
     //create a new event
-    Event event = new Event();
-    event.setCategory(networkingCategory);
-    event.setName("Jim's Networking Event");
-    em.persist(event);
-
-    em.getTransaction().commit();
-
-    em.getTransaction().begin();
-    em.refresh(networkingCategory);
-    for(Event networkingEvent : networkingCategory.getEvents()) {
-      System.out.println(networkingEvent.getName() + " is in the networking category");
-    }
-    em.getTransaction().commit();
-
-    em.close();
-    emf.close();
   }
 }
